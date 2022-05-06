@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>商品管理系统</title>
+    <script th:src="@{static/js/jquery-1.12.4.min.js}"></script>
+    <link th:href="@{static/bootstrap-3.4.1-dist/css/bootstrap.min.css}" rel="stylesheet">
+    <script th:src="@{static/bootstrap-3.4.1-dist/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<div class="container">
+    <!--    标题-->
+    <div class="row">
+        <div class="col-md-8 col-md-offset-5">
+            <h3>商品管理系统</h3>
+        </div>
+    </div>
+    <!--    新增 删除-->
+    <div class="row">
+        <div class="col-md-4 col-md-offset-8">
+            <a th:href="@{/addProduct}" style="text-decoration:none">
+                <button type="button" class="btn btn-success">新增</button>
+            </a>
+        </div>
+    </div>
+    <!--  展示-->
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-hover">
+                <tr>
+                    <th>商品编号</th>
+                    <th>商品品牌</th>
+                    <th>商品名称</th>
+                    <th>商品图片</th>
+                    <th>商品描述</th>
+                    <th>商品价格</th>
+                    <th>操作</th>
+                </tr>
+                <tr th:each="product:${pageInfo.list}">
+                    <td th:text="${product.productId}">默认</td>
+                    <td th:text="${product.brand.brandName}">默认</td>
+                    <td th:text="${product.productName}">默认</td>
+                    <td>
+                        <img th:src="@{|static/${product.productImg}|}" alt="" class="img-rounded img-responsive">
+<!--                    <td th:text="'static/'+${product.productImg}">默认</td>-->
+<!--                        static/products/c_0001.jpg-->
+                    </td>
+                    <td th:text="${product.productDesc}">默认</td>
+                    <td th:text="${product.productPrice}">默认</td>
+                    <td>
+                        <a  th:href="@{/updateProduct(productId=${product.productId})}" style="text-decoration:none">
+                            <button class="btn btn-primary btn-sm">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                编辑
+                            </button>
+                        </a>
+                        <a  th:href="@{/product/delete(productId=${product.productId})}" style="text-decoration:none">
+                            <button class="btn btn-danger btn-sm">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                删除
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+    <!--    分页信息-->
+    <div class="row">
+        <!--        分页文字信息-->
+
+        <div class="col-md-6">
+            当前第<span th:text="${pageInfo.pageNum}">默认</span>页，
+            总共<span th:text="${pageInfo.pages}">默认</span>页，
+            总共<span th:text="${pageInfo.total}">默认</span>记录
+        </div>
+        <!--        分页条-->
+
+        <div class="col-md-6">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li th:if="${pageInfo.pageNum} ne 1">
+                        <a th:href="@{/products(pn=1)}">首页</a>
+                    </li>
+                    <li th:class="${1 == pageInfo.pageNum}?'disabled':''"
+                        th:if="${pageInfo.pageNum} eq 1">
+                        <a>首页</a>
+                    </li>
+                    <li th:if="${pageInfo.pageNum} gt 1">
+                        <a th:href="@{/products(pn=${pageInfo.pageNum}-1)}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li th:class="${1 == pageInfo.pageNum}?'disabled':''"
+                        th:if="1 eq ${pageInfo.pageNum}">
+                        <a aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li th:each="page:${pageInfo.navigatepageNums}" th:class="${page == pageInfo.pageNum}?'active':''">
+                        <a th:href="@{/products(pn=${page})}"><span th:text="${page}">0</span></a>
+                    </li>
+                    <li th:if="${pageInfo.pageNum} lt ${pageInfo.pages}">
+                        <a th:href="@{/products(pn=${pageInfo.pageNum}+1)}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li th:class="${pageInfo.pages == pageInfo.pageNum}?'disabled':''"
+                        th:if="${pageInfo.pages} eq ${pageInfo.pageNum}">
+                        <a aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li th:if="${pageInfo.pages} ne ${pageInfo.pageNum}">
+                        <a th:href="@{/products(pn=${pageInfo.pages})}">尾页</a>
+                    </li>
+                    <li th:class="${pageInfo.pages == pageInfo.pageNum}?'disabled':''"
+                        th:if="${pageInfo.pageNum} eq ${pageInfo.pages}" >
+                        <a>尾页</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="crud.dao.ProductMapper" >
+  <resultMap id="BaseResultMap" type="crud.bean.Product" >
+    <id column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="product_brand" property="productBrand" jdbcType="INTEGER" />
+    <result column="product_price" property="productPrice" jdbcType="DOUBLE" />
+    <result column="product_img" property="productImg" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="crud.bean.Product" extends="BaseResultMap" >
+    <result column="product_desc" property="productDesc" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <resultMap id="WithBrandResultMap" type="crud.bean.Product">
+    <id column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="product_brand" property="productBrand" jdbcType="INTEGER" />
+    <result column="product_price" property="productPrice" jdbcType="DOUBLE" />
+    <result column="product_img" property="productImg" jdbcType="VARCHAR" />
+    <result column="product_desc" property="productDesc" jdbcType="LONGVARCHAR" />
+    <association property="brand" javaType="crud.bean.Brand">
+      <id column="brand_id" property="brandId"/>
+      <result column="brand_name" property="brandName"/>
+    </association>
+  </resultMap>
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    product_id, product_name, product_brand, product_price, product_img
+  </sql>
+  <sql id="WithBrand_Column_List" >
+    p.product_id, p.product_name, p.product_brand, p.product_price, p.product_img,p.product_desc,b.brand_id,b.brand_name
+  </sql>
+  <sql id="Blob_Column_List" >
+    product_desc
+  </sql>
+<!--  List<Product> selectByExampleWithBrand(ProductExample example);-->
+  <!--    Product selectByPrimaryKeyWithBrand(Integer productId);-->
+
+  <select id="selectByExampleWithBrand" resultMap="WithBrandResultMap">
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="WithBrand_Column_List" />
+    from product p
+    left JOIN brand b ON b.`brand_id`=p.`product_brand`
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKeyWithBrand"  resultMap="WithBrandResultMap">
+    select
+    <include refid="WithBrand_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from product p
+    left JOIN brand b ON b.`brand_id`=p.`product_brand`
+    where product_id = #{productId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="crud.bean.ProductExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from product
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="crud.bean.ProductExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from product
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from product
+    where product_id = #{productId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from product
+    where product_id = #{productId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="crud.bean.ProductExample" >
+    delete from product
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="crud.bean.Product" >
+    insert into product (product_id, product_name, product_brand, 
+      product_price, product_img, product_desc
+      )
+    values (#{productId,jdbcType=INTEGER}, #{productName,jdbcType=VARCHAR}, #{productBrand,jdbcType=INTEGER}, 
+      #{productPrice,jdbcType=DOUBLE}, #{productImg,jdbcType=VARCHAR}, #{productDesc,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="crud.bean.Product" >
+    insert into product
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="productId != null" >
+        product_id,
+      </if>
+      <if test="productName != null" >
+        product_name,
+      </if>
+      <if test="productBrand != null" >
+        product_brand,
+      </if>
+      <if test="productPrice != null" >
+        product_price,
+      </if>
+      <if test="productImg != null" >
+        product_img,
+      </if>
+      <if test="productDesc != null" >
+        product_desc,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="productId != null" >
+        #{productId,jdbcType=INTEGER},
+      </if>
+      <if test="productName != null" >
+        #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="productBrand != null" >
+        #{productBrand,jdbcType=INTEGER},
+      </if>
+      <if test="productPrice != null" >
+        #{productPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="productImg != null" >
+        #{productImg,jdbcType=VARCHAR},
+      </if>
+      <if test="productDesc != null" >
+        #{productDesc,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="crud.bean.ProductExample" resultType="java.lang.Integer" >
+    select count(*) from product
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update product
+    <set >
+      <if test="record.productId != null" >
+        product_id = #{record.productId,jdbcType=INTEGER},
+      </if>
+      <if test="record.productName != null" >
+        product_name = #{record.productName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.productBrand != null" >
+        product_brand = #{record.productBrand,jdbcType=INTEGER},
+      </if>
+      <if test="record.productPrice != null" >
+        product_price = #{record.productPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="record.productImg != null" >
+        product_img = #{record.productImg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.productDesc != null" >
+        product_desc = #{record.productDesc,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update product
+    set product_id = #{record.productId,jdbcType=INTEGER},
+      product_name = #{record.productName,jdbcType=VARCHAR},
+      product_brand = #{record.productBrand,jdbcType=INTEGER},
+      product_price = #{record.productPrice,jdbcType=DOUBLE},
+      product_img = #{record.productImg,jdbcType=VARCHAR},
+      product_desc = #{record.productDesc,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update product
+    set product_id = #{record.productId,jdbcType=INTEGER},
+      product_name = #{record.productName,jdbcType=VARCHAR},
+      product_brand = #{record.productBrand,jdbcType=INTEGER},
+      product_price = #{record.productPrice,jdbcType=DOUBLE},
+      product_img = #{record.productImg,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="crud.bean.Product" >
+    update product
+    <set >
+      <if test="productName != null" >
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="productBrand != null" >
+        product_brand = #{productBrand,jdbcType=INTEGER},
+      </if>
+      <if test="productPrice != null" >
+        product_price = #{productPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="productImg != null" >
+        product_img = #{productImg,jdbcType=VARCHAR},
+      </if>
+      <if test="productDesc != null" >
+        product_desc = #{productDesc,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where product_id = #{productId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="crud.bean.Product" >
+    update product
+    set product_name = #{productName,jdbcType=VARCHAR},
+      product_brand = #{productBrand,jdbcType=INTEGER},
+      product_price = #{productPrice,jdbcType=DOUBLE},
+      product_img = #{productImg,jdbcType=VARCHAR},
+      product_desc = #{productDesc,jdbcType=LONGVARCHAR}
+    where product_id = #{productId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="crud.bean.Product" >
+    update product
+    set product_name = #{productName,jdbcType=VARCHAR},
+      product_brand = #{productBrand,jdbcType=INTEGER},
+      product_price = #{productPrice,jdbcType=DOUBLE},
+      product_img = #{productImg,jdbcType=VARCHAR}
+    where product_id = #{productId,jdbcType=INTEGER}
+  </update>
+</mapper>
